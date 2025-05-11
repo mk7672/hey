@@ -8,9 +8,16 @@
   font-family: 'Dancing Script', cursive;
 }
 html, body {
+
   height: 90%;
   /* margin: 0; */
   /* overflow: hidden; Remove vertical scrollbar */
+
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden; /* Remove vertical scrollbar */
+
 }
 
 /* body {
