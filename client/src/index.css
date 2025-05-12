@@ -9,20 +9,16 @@
 }
 html, body {
 
-  height: 90%;
+  /* height: 90%; */
   /* margin: 0; */
   /* overflow: hidden; Remove vertical scrollbar */
-
   height: 100%;
   width: 100%;
   margin: 0;
-  overflow: hidden; /* Remove vertical scrollbar */
+  overflow: hidden; 
 
 }
-
-/* body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f7fafc;
-} */ 
+/* index.css */
+body {
+  background-color: #f3f4f6; /* Tailwind's gray-100 */
+}

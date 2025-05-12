@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 const PostLoginHome = () => {
   const [semester, setSemester] = useState('');
   const [section, setSection] = useState('');
-  const [subject, setSubject] = useState(''); // ✅ New state for subject
+  const [subject, setSubject] = useState('');
   const navigate = useNavigate();
 
-  const handleNext = () => {
+  const handleCardClick = (type) => {
     if (semester && section && subject) {
-      navigate(`/marks-form?semester=${semester}&section=${section}&subject=${encodeURIComponent(subject)}`);
+      navigate(`/marks-form/${type}?semester=${semester}&section=${section}&subject=${encodeURIComponent(subject)}`);
     } else {
       alert('Please select semester, section, and enter subject name');
     }
@@ -27,6 +27,7 @@ const PostLoginHome = () => {
           Enter the semester, section, and subject to proceed to the marks submission page.
         </p>
 
+        {/* Dropdowns & Input */}
         <div className="mb-4">
           <label className="block mb-2 font-semibold">Select Semester</label>
           <select
@@ -54,8 +55,7 @@ const PostLoginHome = () => {
           </select>
         </div>
 
-        {/* ✅ Subject Input Field */}
-        <div className="mb-6">
+        <div className="mb-10">
           <label className="block mb-2 font-semibold">Enter Subject Name</label>
           <input
             type="text"
@@ -66,15 +66,38 @@ const PostLoginHome = () => {
           />
         </div>
 
-        <button
-          onClick={handleNext}
-          className="bg-black text-white mt-5 px-6 py-2 rounded hover:bg-purple-900 transition"
-        >
-          Next
-        </button>
+        {/* Functional Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 max-w-6xl mx-auto">
+          <Card 
+            title="Assignment" 
+            description="Average of all submitted assignment scores contributing to internal marks." 
+            onClick={() => handleCardClick('assignment')} 
+          />
+          <Card 
+            title="Lab" 
+            description="Includes practical lab work and experiments marked throughout the semester." 
+            onClick={() => handleCardClick('lab')} 
+          />
+          <Card 
+            title="Theory" 
+            description="Continuous internal assessments like quizzes, midterms, and tests." 
+            onClick={() => handleCardClick('theory')} 
+          />
+        </div>
       </div>
     </div>
   );
 };
+
+// Reusable Card Component
+const Card = ({ title, description, onClick }) => (
+  <div 
+    onClick={onClick}
+    className="cursor-pointer bg-white rounded-2xl p-6 border-2 border-gray-300 shadow-md hover:shadow-xl transition duration-300 text-center"
+  >
+    <h2 className="font-dancing text-3xl mb-3">{title}</h2>
+    <p className="text-base text-gray-700">{description}</p>
+  </div>
+);
 
 export default PostLoginHome;
