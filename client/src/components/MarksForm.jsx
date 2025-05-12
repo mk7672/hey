@@ -21,6 +21,7 @@ const StudentMarksForm = () => {
   const semester = queryParams.get('semester');
   const section = queryParams.get('section');
   const subject = queryParams.get('subject');
+  const token = localStorage.getItem('token');
 
   const navigate = useNavigate();
 
@@ -78,7 +79,11 @@ const StudentMarksForm = () => {
     try {
       const res = await fetch('http://localhost:5000/api/student', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers:  {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  },
+
         body: JSON.stringify(payload),
       });
 

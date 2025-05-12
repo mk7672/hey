@@ -21,6 +21,12 @@ const studentSchema = new mongoose.Schema({
   subject: String,
   attendance: attendanceSchema,
   marks: marksSchema,
+
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 });
 
 const Student = mongoose.model('Student', studentSchema);

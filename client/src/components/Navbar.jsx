@@ -16,20 +16,39 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const handleLogoClick = () => {
+    if (isLoggedIn) {
+      navigate("/pl"); // logged-in landing page
+    } else {
+      navigate("/"); // public landing page
+    }
+  };
+
+  const handleTitleClick = () => {
+    if (isLoggedIn) {
+      navigate("/pl");
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <nav className="bg-gradient-to-r from-red-500 to-black text-white py-3 shadow-md">
       <div className="container mx-auto flex justify-between items-center px-6">
         <div className="flex items-center gap-4">
-          <Link to="/">
+          <div onClick={handleLogoClick} className="cursor-pointer">
             <img
               src="./exam-logo.jpg"
               alt="Logo"
               className="w-12 h-12 rounded-full hover:scale-110 transition-transform"
             />
-          </Link>
-          <Link to="/">
-            <div className="text-xl font-serif font-semibold hover:underline">S E C</div>
-          </Link>
+          </div>
+          <div
+            onClick={handleTitleClick}
+            className="text-xl font-serif font-semibold hover:underline cursor-pointer"
+          >
+            S E C
+          </div>
         </div>
 
         <div className="flex items-center gap-8">
@@ -38,21 +57,16 @@ const Navbar = () => {
           </Link>
 
           {!isLoggedIn ? (
-            <Link to="/login" className="hover:underline font-semibold">
-              Login
+            <Link to="/signup" className="hover:underline font-semibold">
+              Sign Up
             </Link>
           ) : (
-            <>
-              {/* <Link to="/" className="hover:underline font-semibold">
-                Home
-              </Link> */}
-              <button
-                onClick={handleLogout}
-                className="hover:underline font-semibold"
-              >
-                Logout
-              </button>
-            </>
+            <button
+              onClick={handleLogout}
+              className="hover:underline font-semibold"
+            >
+              Logout
+            </button>
           )}
         </div>
       </div>

@@ -3,23 +3,29 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!username.trim() || !password.trim()) {
-      setError("Please enter both username and password.");
+    if (!username.trim() || !password.trim() || !confirmPassword.trim()) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch("http://localhost:5000/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -28,29 +34,27 @@ const Login = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Login failed");
+        setError(data.message || "Signup failed");
       } else {
-        localStorage.setItem("token", data.token);
-
-        toast.success("Login successful!", {
+        toast.success("Signup successful! Redirecting to login...", {
           position: "top-center",
           autoClose: 2000,
         });
 
-        setTimeout(() => navigate("/pl"), 1000); // wait for toast to finish
+        setTimeout(() => navigate("/login"), 1000);
       }
     } catch (err) {
-      setError("Server error. Please try again later.");
       console.error(err);
+      setError("Server error. Please try again later.");
     }
   };
 
   return (
     <div className="w-full max-w-sm mx-auto px-4">
-      <h2 className="text-7xl font-dancing mb-10 text-center">Login</h2>
+      <h2 className="text-7xl font-dancing mb-10 text-center">Sign Up</h2>
 
-      <div className="border-4 border-black p-6 rounded-lg shadow-lg shadow-red-500">
-        <form onSubmit={handleLogin} className="space-y-6">
+      <div className="border-4 border-black p-6 rounded-lg shadow-lg shadow-purple-500">
+        <form onSubmit={handleSignup} className="space-y-6">
           <input
             type="text"
             placeholder="Username"
@@ -65,18 +69,25 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            className="w-full border p-2 rounded"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <button type="submit" className="w-full bg-black text-white py-2 rounded">
-            Login
+            Sign Up
           </button>
 
           <Link
-            to="/forgot-password"
+            to="/login"
             className="block text-center text-sm text-blue-600 hover:underline"
           >
-            Forgot Password?
+            Already have an account? Login
           </Link>
         </form>
       </div>
@@ -84,4 +95,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

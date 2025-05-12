@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+
+
+ 
 
 const StudentMarksTable = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const calculateEligibility = (student) => {
     const { classesAttended, totalClassesConducted } = student.attendance;
@@ -14,25 +19,47 @@ const StudentMarksTable = () => {
     return attendancePercent >= 85 && totalMarks >= 20 ? '✅ Eligible' : '❌ Not Eligible';
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('http://localhost:5000/api/student');
-        const data = await res.json();
-        setStudents(data);
-      } catch (err) {
-        console.error('Error fetching student data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleBack = () => {
+    navigate("/pl")
+  };
 
-    fetchData();
-  }, []);
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token"); // assuming token is stored here
+      const res = await fetch('http://localhost:5000/api/student', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Unauthorized');
+      }
+
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid response format');
+      }
+
+      setStudents(data);
+    } catch (err) {
+      console.error('Error fetching student data:', err);
+      setStudents([]); // Avoid crashing map()
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
 
   if (loading) return <div className="text-center mt-10 text-xl">Loading student marks...</div>;
 
   return (
+    <>
     <div className="p-8">
       <h1 className="text-3xl font-bold text-center mb-6">Student Marks & Eligibility</h1>
       <div className="overflow-x-auto">
@@ -81,8 +108,12 @@ const StudentMarksTable = () => {
             })}
           </tbody>
         </table>
+        
       </div>
     </div>
+    <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={handleBack}>⬅️Back</button>
+    </>
+    
   );
 };
 

@@ -54,6 +54,8 @@ import MarksForm from "./components/MarksForm";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StudentMarksTable from "./components/Stable";
+import Signup from "./components/Signup";
+
 
 const AppLayout = ({ children }) => {
   const location = useLocation();
@@ -76,6 +78,7 @@ const AppLayout = ({ children }) => {
 const App = () => {
   return (
     <Router>
+      <ToastContainer />
       <Routes>
         <Route
           path="/"
@@ -84,6 +87,14 @@ const App = () => {
               <Home />
             </AppLayout>
           }
+        />
+        <Route
+        path="/signup"
+        element={
+          <AppLayout>
+            <Signup />
+          </AppLayout>
+        }
         />
         <Route
           path="/contact"

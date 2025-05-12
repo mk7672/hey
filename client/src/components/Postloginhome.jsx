@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const PostLoginHome = () => {
   const [semester, setSemester] = useState('');
@@ -12,7 +14,10 @@ const PostLoginHome = () => {
     if (semester && section && subject) {
       navigate(`/marks-form/${type}?semester=${semester}&section=${section}&subject=${encodeURIComponent(subject)}`);
     } else {
-      alert('Please select semester, section, and enter subject name');
+      toast.warn('Please select semester, section, and enter subject name.', {
+        position: 'top-center',
+        autoClose: 2500,
+      });
     }
   };
 
@@ -91,6 +96,17 @@ const PostLoginHome = () => {
               description="Continuous internal assessments like quizzes, midterms, and tests." 
               onClick={() => handleCardClick('theory')} 
             />
+          </div>
+
+          {/* New Row with One Centered Card */}
+          <div className="mt-14 flex justify-center">
+            <div className="w-full max-w-sm">
+              <Card 
+                title="📊 View Final Eligibility Table"
+                description="See all submitted marks and check eligibility status for each student."
+                onClick={() => navigate("/table")}
+              />
+            </div>
           </div>
         </div>
       </div>
