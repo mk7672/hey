@@ -37,7 +37,7 @@ const Login = () => {
           autoClose: 2000,
         });
 
-        setTimeout(() => navigate("/"), 2000); // wait for toast to finish
+        setTimeout(() => navigate("/pl"), 2000); // wait for toast to finish
       }
     } catch (err) {
       setError("Server error. Please try again later.");

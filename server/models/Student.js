@@ -1,11 +1,29 @@
 const mongoose = require('mongoose');
 
-const studentSchema = new mongoose.Schema({
-  uid: { type: String, required: true },
-  section: { type: String, required: true },
-  subject: { type: String, required: true },
-  marks: { type: Number, required: true },
-  eligibility: { type: Boolean, required: true }
+const attendanceSchema = new mongoose.Schema({
+  classesAttended: Number,
+  totalClassesConducted: Number,
 });
 
-module.exports = mongoose.model('Student', studentSchema);
+const marksSchema = new mongoose.Schema({
+  assignment: Number,
+  lab: Number,
+  theory: Number,
+  cie1: Number,
+  cie2: Number,
+  cie3: Number,
+});
+
+const studentSchema = new mongoose.Schema({
+  studentId: { type: String, required: true },
+  semester: String,
+  section: String,
+  subject: String,
+  attendance: attendanceSchema,
+  marks: marksSchema,
+});
+
+const Student = mongoose.model('Student', studentSchema);
+
+module.exports = Student;
+

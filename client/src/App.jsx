@@ -25,7 +25,7 @@
 //   return (
 //     <div className="min-h-screen bg-gray-100">
 //       {/* Conditionally render Navbar */}
-//       {location.pathname !== '/dashboard' && <Navbar />} {/* Hide navbar on /dashboard */}
+//       {location.pathname !== '/home' && <Navbar />} {/* Hide navbar on /home */}
 
 //       <div className="flex justify-center items-center py-10">
 //         <Routes>
@@ -33,7 +33,7 @@
 //           <Route path="/contact" element={<Contact />} />
 //           <Route path="/login" element={<Login />} />
 //           <Route path="/forgot-password" element={<ForgotPassword />} />
-//           <Route path="/dashboard" element={<PostLoginHome />} /> {/* Route for the post-login home page */}
+//           <Route path="/home" element={<PostLoginHome />} /> {/* Route for the post-login home page */}
 //           <Route path="/marks-form" element={<MarksForm />} />
 //         </Routes>
 //       </div>
@@ -53,10 +53,11 @@ import PostLoginHome from "./components/PostLoginHome";
 import MarksForm from "./components/MarksForm";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import StudentMarksTable from "./Stable";
 
 const AppLayout = ({ children }) => {
   const location = useLocation();
-  const hideNavbar = location.pathname === "/dashboard";
+  const hideNavbar = location.pathname === "/home";
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -108,12 +109,20 @@ const App = () => {
             </AppLayout>
           }
         />
-        <Route path="/dashboard" element={<PostLoginHome />} />
+        <Route path="/pl" element={<PostLoginHome />} />
         <Route
-          path="/marks-form"
+          path="/marks-form/:type"
           element={
             <AppLayout>
               <MarksForm />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/table"
+          element={
+            <AppLayout>
+              <StudentMarksTable />
             </AppLayout>
           }
         />

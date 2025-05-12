@@ -43,9 +43,9 @@ const Navbar = () => {
             </Link>
           ) : (
             <>
-              <Link to="/" className="hover:underline font-semibold">
-                Dashboard
-              </Link>
+              {/* <Link to="/" className="hover:underline font-semibold">
+                Home
+              </Link> */}
               <button
                 onClick={handleLogout}
                 className="hover:underline font-semibold"

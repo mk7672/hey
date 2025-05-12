@@ -2,43 +2,34 @@ const express = require('express');
 const router = express.Router();
 const Student = require('../models/Student');
 
-// Add or Update Marks and Eligibility
-router.post('/add', async (req, res) => {
-  const { uid, section, subject, marks } = req.body;
 
-  const eligibility = marks >= 40; // Example rule
-
+// POST: Save student marks
+router.post('/', async (req, res) => {
   try {
-    let student = await Student.findOne({ uid, section, subject });
-
-    if (student) {
-      student.marks = marks;
-      student.eligibility = eligibility;
-      await student.save();
-      return res.json({ message: 'Marks updated successfully', eligibility });
-    }
-
-    student = new Student({ uid, section, subject, marks, eligibility });
-    await student.save();
-    res.json({ message: 'Marks added successfully', eligibility });
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    const newStudent = new Student(req.body);
+    await newStudent.save();
+    res.status(201).json({ message: 'Marks saved successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save marks' });
   }
 });
 
-// Fetch Eligibility
-router.get('/check', async (req, res) => {
-  const { uid, section, subject } = req.query;
-
+// GET: View all students or filter by query
+router.get('/', async (req, res) => {
   try {
-    const student = await Student.findOne({ uid, section, subject });
-    if (!student) {
-      return res.status(404).json({ error: 'Student record not found' });
-    }
-    res.json({ eligibility: student.eligibility });
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    const { semester, section, subject } = req.query;
+
+    const filter = {};
+    if (semester) filter.semester = semester;
+    if (section) filter.section = section;
+    if (subject) filter.subject = subject;
+
+    const students = await Student.find(filter);
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch marks' });
   }
 });
 
 module.exports = router;
+
