@@ -51,19 +51,19 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-8">
-          <Link to="/contact" className="hover:underline font-semibold">
+        <div className="flex items-center gap-20">
+          <Link to="/contact" className="hover:underline font-semibold text-xl">
             Contact Us
           </Link>
 
           {!isLoggedIn ? (
-            <Link to="/signup" className="hover:underline font-semibold">
+            <Link to="/signup" className="hover:underline font-semibold text-xl">
               Sign Up
             </Link>
           ) : (
             <button
               onClick={handleLogout}
-              className="hover:underline font-semibold"
+              className="hover:underline font-semibold text-xl"
             >
               Logout
             </button>

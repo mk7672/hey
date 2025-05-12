@@ -50,10 +50,10 @@ const Signup = () => {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto px-4">
-      <h2 className="text-7xl font-dancing mb-10 text-center">Sign Up</h2>
+    <div className="w-full max-w-lg mx-auto px-4">
+      <h2 className="text-8xl font-dancing mt-20 mb-20 text-center">Sign Up</h2>
 
-      <div className="border-4 border-black p-6 rounded-lg shadow-lg shadow-purple-500">
+      <div className="border-4 border-black p-6 rounded-lg shadow-lg shadow-red-500">
         <form onSubmit={handleSignup} className="space-y-6">
           <input
             type="text"
@@ -79,13 +79,13 @@ const Signup = () => {
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <button type="submit" className="w-full bg-black text-white py-2 rounded">
+          <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition text-lg">
             Sign Up
           </button>
 
           <Link
             to="/login"
-            className="block text-center text-sm text-blue-600 hover:underline"
+            className="block text-center text-lg text-blue-600 hover:underline"
           >
             Already have an account? Login
           </Link>

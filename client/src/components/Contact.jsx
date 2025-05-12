@@ -10,14 +10,14 @@ const Contact = () => {
 
   return (
     <>
- <div className="w-full max-w-md mx-auto px-4 text-center"> 
+ <div className="w-full max-w-lg mx-auto px-4 text-center"> 
       {/* Heading outside the box */}
-      <h2 className="text-7xl font-dancing mb-5 ">Contact Us</h2>
+      <h2 className="text-8xl font-dancing mt-20 mb-5 ">Contact Us</h2>
 
       {/* Content box */}
-      <div className="border-4 border-black p-6 rounded-lg shadow-lg shadow-red-500 space-y-4">
-        <p className="text-xl">Email: support@example.com</p>
-        <p className="text-xl">Phone: +91 98765 43210</p>
+      <div className="border-4 border-black p-8 rounded-lg shadow-lg shadow-red-500 space-y-4 mt-20">
+        <p className="text-2xl"><b>Email:</b> support@example.com</p>
+        <p className="text-2xl"><b>Phone:</b> +91 98765 43210</p>
 
         {/* Text area */}
         <textarea
