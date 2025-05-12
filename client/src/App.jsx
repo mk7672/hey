@@ -53,7 +53,7 @@ import PostLoginHome from "./components/PostLoginHome";
 import MarksForm from "./components/MarksForm";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import StudentMarksTable from "./Stable";
+import StudentMarksTable from "./components/Stable";
 
 const AppLayout = ({ children }) => {
   const location = useLocation();
