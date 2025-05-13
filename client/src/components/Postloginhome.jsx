@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const StudentMarksForm = () => {
   const [formData, setFormData] = useState({
@@ -40,7 +42,7 @@ const StudentMarksForm = () => {
     setSuccess(false);
 
     if (!semester || !section || !subject) {
-      alert('Please select semester, section, and subject.');
+      toast.warning('Please select semester, section, and subject.');
       return;
     }
 
@@ -82,6 +84,7 @@ const StudentMarksForm = () => {
 
       if (res.ok) {
         setSuccess(true);
+        toast.success('✅ Marks submitted successfully!');
         setFormData({
           studentId: '',
           classesAttended: '',
@@ -93,11 +96,11 @@ const StudentMarksForm = () => {
           cie3: '',
         });
       } else {
-        alert('Failed to submit. Try again.');
+        toast.error('❌ Failed to submit. Try again.');
       }
     } catch (err) {
       console.error(err);
-      alert('Error submitting data.');
+      toast.error('❌ Error submitting data.');
     }
   };
 
@@ -114,21 +117,17 @@ const StudentMarksForm = () => {
         <h2 className="text-4xl font-dancing text-center mb-4">Enter Marks</h2>
 
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto grid grid-cols-1 gap-4">
-          {/* Dropdowns for Semester, Section, Subject */}
           <select value={semester} onChange={(e) => setSemester(e.target.value)} required className="w-full border p-2 rounded">
             <option value="">Select Semester</option>
-            {/* <option value="1">1</option> */}
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
-            {/* Add more as needed */}
           </select>
 
           <select value={section} onChange={(e) => setSection(e.target.value)} required className="w-full border p-2 rounded">
             <option value="">Select Section</option>
             <option value="A">A</option>
             <option value="B">B</option>
-            {/* Add more sections if needed */}
           </select>
 
           <select value={subject} onChange={(e) => setSubject(e.target.value)} required className="w-full border p-2 rounded">
@@ -137,7 +136,6 @@ const StudentMarksForm = () => {
             <option value="Physics">Physics</option>
             <option value="Chemistry">Chemistry</option>
             <option value="Computer">Computer</option>
-            {/* Add more subjects as needed */}
           </select>
 
           <input
@@ -218,11 +216,6 @@ const StudentMarksForm = () => {
           />
 
           <div className="text-center">
-            {success && (
-              <p className="text-green-600 font-semibold mb-2">
-                ✅ Marks submitted successfully!
-              </p>
-            )}
             <button
               type="submit"
               className="bg-black text-white w-full py-2 rounded hover:bg-purple-900 transition"
@@ -238,6 +231,9 @@ const StudentMarksForm = () => {
           </div>
         </form>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

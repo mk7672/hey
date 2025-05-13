@@ -11,9 +11,9 @@ const StudentMarksTable = () => {
     const { theory = 0, lab = 0, assignment = 0 } = student.marks || {};
 
     const attendancePercent = (classesAttended / totalClassesConducted) * 100;
-    const totalMarks = theory + lab + assignment;
+    // const totalMarks = theory + lab + assignment;
 
-    return attendancePercent >= 85 && totalMarks >= 20 ? '✅ Eligible' : '❌ Not Eligible';
+    return attendancePercent >= 85 && theory>= 6 && assignment>=6 && lab>=6 ? '✅ Eligible' : '❌ Not Eligible';
   };
 
   const handleBack = () => {
