@@ -1,38 +1,3 @@
-// const express = require('express');
-// const router = express.Router();
-// const Student = require('../models/Student');
-
-
-// // POST: Save student marks
-// router.post('/', async (req, res) => {
-//   try {
-//     const newStudent = new Student(req.body);
-//     await newStudent.save();
-//     res.status(201).json({ message: 'Marks saved successfully' });
-//   } catch (err) {
-//     res.status(500).json({ error: 'Failed to save marks' });
-//   }
-// });
-
-// // GET: View all students or filter by query
-// router.get('/', async (req, res) => {
-//   try {
-//     const { semester, section, subject } = req.query;
-
-//     const filter = {};
-//     if (semester) filter.semester = semester;
-//     if (section) filter.section = section;
-//     if (subject) filter.subject = subject;
-
-//     const students = await Student.find(filter);
-//     res.json(students);
-//   } catch (err) {
-//     res.status(500).json({ error: 'Failed to fetch marks' });
-//   }
-// });
-
-// module.exports = router;
-
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const Student = require('../models/Student');
@@ -54,6 +19,8 @@ const verifyToken = (req) => {
 router.post('/', async (req, res) => {
   try {
     const decoded = verifyToken(req);
+
+    // New student data includes `aat` as part of `marks`
     const studentData = {
       ...req.body,
       createdBy: decoded.id
@@ -79,7 +46,7 @@ router.get('/', async (req, res) => {
     if (subject) filter.subject = subject;
 
     const students = await Student.find(filter);
-    res.json(students);
+    res.json(students); // Each returned record includes `aat` in `marks`
   } catch (err) {
     res.status(401).json({ error: 'Unauthorized or failed to fetch marks' });
   }

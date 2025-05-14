@@ -9,6 +9,7 @@ const marksSchema = new mongoose.Schema({
   assignment: Number,
   lab: Number,
   theory: Number,
+  aat: Number,
   cie1: Number,
   cie2: Number,
   cie3: Number,

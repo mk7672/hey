@@ -10,6 +10,7 @@ const StudentMarksForm = () => {
     totalClassesConducted: '',
     assignment: '',
     lab: '',
+    aat: '',
     cie1: '',
     cie2: '',
     cie3: '',
@@ -54,6 +55,7 @@ const StudentMarksForm = () => {
     const marks = {
       assignment: Number(formData.assignment),
       lab: Number(formData.lab),
+      aat: Number(formData.aat),
       cie1: Number(formData.cie1),
       cie2: Number(formData.cie2),
       cie3: Number(formData.cie3),
@@ -91,6 +93,7 @@ const StudentMarksForm = () => {
           totalClassesConducted: '',
           assignment: '',
           lab: '',
+          aat: '',
           cie1: '',
           cie2: '',
           cie3: '',
@@ -189,6 +192,15 @@ const StudentMarksForm = () => {
           />
           <input
             type="number"
+            name="aat"
+            placeholder="AAT Marks"
+            value={formData.aat}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          />
+          <input
+            type="number"
             name="cie1"
             placeholder="CIE 1 Marks"
             value={formData.cie1}
@@ -232,7 +244,6 @@ const StudentMarksForm = () => {
         </form>
       </div>
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
