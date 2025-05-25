@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setError("");
 
@@ -18,31 +18,15 @@ const Login = () => {
       return;
     }
 
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+    // Simulate successful login
+    localStorage.setItem("token", "mockToken123");
 
-      const data = await response.json();
+    toast.success("Login successful!", {
+      position: "top-center",
+      autoClose: 2000,
+    });
 
-      if (!response.ok) {
-        setError(data.message || "Login failed");
-      } else {
-        localStorage.setItem("token", data.token);
-
-        toast.success("Login successful!", {
-          position: "top-center",
-          autoClose: 2000,
-        });
-
-        setTimeout(() => navigate("/pl"), 1000); // wait for toast to finish
-      }
-    } catch (err) {
-      setError("Server error. Please try again later.");
-      console.error(err);
-    }
+    setTimeout(() => navigate("/pl"), 1000);
   };
 
   return (

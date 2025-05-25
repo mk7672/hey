@@ -1,6 +1,6 @@
 const Home = () => {
   return (
-    <div className="flex flex-col items-center px-4 bg-gray-200 mt-20 py-10 w-3/4 h-[70vh] mx-auto rounded-xl">
+    <div className="flex flex-col items-center px-4 bg-white border-4 border-black shadow-xl shadow-black-700 mt-20 py-10 w-3/4 h-[70vh] mx-auto rounded-xl">
       <h1 className="text-3xl md:text-8xl font-dancing text-center mt-20">
         SEE Eligibility Calculator
       </h1>

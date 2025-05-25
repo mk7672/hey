@@ -1,13 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token); // true if token exists
+    setIsLoggedIn(!!token);
   }, []);
 
   const handleLogout = () => {
@@ -17,20 +18,19 @@ const Navbar = () => {
   };
 
   const handleLogoClick = () => {
-    if (isLoggedIn) {
-      navigate("/pl"); // logged-in landing page
-    } else {
-      navigate("/"); // public landing page
-    }
-  };
+  navigate("/"); // always home page
+};
 
-  const handleTitleClick = () => {
-    if (isLoggedIn) {
-      navigate("/pl");
-    } else {
-      navigate("/");
-    }
-  };
+const handleTitleClick = () => {
+  navigate("/"); // always home page
+};
+
+
+  // List of paths where you want to hide the tabs
+  const hideLinksOnPaths = ["/pl"];
+
+  // Check if current path is in that list
+  const hideTabs = hideLinksOnPaths.includes(location.pathname);
 
   return (
     <nav className="bg-gradient-to-r from-red-500 to-black text-white py-3 shadow-md">
@@ -51,24 +51,25 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-20">
-          <Link to="/contact" className="hover:underline font-semibold text-xl">
-            Contact Us
-          </Link>
+        {/* Only hide the Contact Us and Sign Up tabs, keep logo & title active */}
+        {!hideTabs && (
+          <div className="flex items-center gap-20">
+            
 
-          {!isLoggedIn ? (
-            <Link to="/signup" className="hover:underline font-semibold text-xl">
-              Sign Up
-            </Link>
-          ) : (
-            <button
-              onClick={handleLogout}
-              className="hover:underline font-semibold text-xl"
-            >
-              Logout
-            </button>
-          )}
-        </div>
+            {!isLoggedIn ? (
+              <Link to="/signup" className="hover:underline font-semibold text-xl">
+                Sign Up
+              </Link>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="hover:underline font-semibold text-xl"
+              >
+                Login
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

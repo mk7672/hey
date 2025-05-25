@@ -1,241 +1,467 @@
-import { useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import React, { useState } from 'react';
 
-const StudentMarksForm = () => {
+export default function StudentMarksForm() {
   const [formData, setFormData] = useState({
     studentId: '',
-    classesAttended: '',
-    totalClassesConducted: '',
-    assignment: '',
-    lab: '',
+    semester: '',
+    section: '',
+    subject: '',
+    aatMarks: '',
+    assignmentMarks: '',
     cie1: '',
     cie2: '',
     cie3: '',
+    labMarks: '',
+    classesAttended: '',
+    totalClassesConducted: '',
   });
 
-  const [success, setSuccess] = useState(false);
+  const [studentsData, setStudentsData] = useState([]);
+  const [message, setMessage] = useState('');
+  const [showTable, setShowTable] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editStudentIndex, setEditStudentIndex] = useState(null);
+  const [editSubjectIndex, setEditSubjectIndex] = useState(null);
 
-  const location = useLocation();
-  const { type } = useParams(); // <-- get type from route
-  const queryParams = new URLSearchParams(location.search);
-  const semester = queryParams.get('semester');
-  const section = queryParams.get('section');
-  const subject = queryParams.get('subject');
-  const token = localStorage.getItem('token');
-
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    navigate('/pl');
+  const subjectOptions = {
+    2: ['Chemistry', 'Electrical', 'C++', 'Electronics'],
+    3: ['COA', 'Python', 'DSA', 'OOPS'],
+    4: ['OS', 'ADS', 'Maths', 'DAA'],
   };
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setMessage('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSuccess(false);
+  const calculateTheoryScaled = (cie1, cie2, cie3) => {
+    const sum = Number(cie1) + Number(cie2) + Number(cie3);
+    return Math.round((sum * 10) / 30);
+  };
 
-    const basePayload = {
-      studentId: formData.studentId,
+  const calculateTotalMarks = (subj) => {
+    return (
+      subj.aatMarks +
+      subj.assignmentMarks +
+      subj.theoryMarks +
+      subj.labMarks
+    );
+  };
+
+  const checkEligibility = (subj) => {
+  const attendancePercent = subj.totalClassesConducted > 0
+    ? (subj.classesAttended / subj.totalClassesConducted) * 100
+    : 0;
+
+  const cie1 = Number(subj.cie1);
+  const cie2 = Number(subj.cie2);
+  const cie3 = Number(subj.cie3);
+  const cieTotal = cie1 + cie2 + cie3;
+
+  const isCieValid = cie1 >= 4 && cie2 >= 4 && cie3 >= 4 && cieTotal >= 12;
+  const isAatValid = subj.aatMarks >= 8; // ✅ updated for out of 20
+  const isAssignmentValid = subj.assignmentMarks >= 4;
+  const isLabValid = subj.labMarks >= 4;
+  const isAttendanceValid = attendancePercent >= 85;
+
+  return isCieValid && isAatValid && isAssignmentValid && isLabValid && isAttendanceValid;
+};
+
+
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const requiredFields = Object.keys(formData);
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        setMessage(`Please fill the ${field} field.`);
+        return;
+      }
+    }
+
+    const {
+      studentId,
       semester,
       section,
       subject,
-    };
+      aatMarks,
+      assignmentMarks,
+      cie1,
+      cie2,
+      cie3,
+      labMarks,
+      classesAttended,
+      totalClassesConducted,
+    } = formData;
 
-    const attendance = {
-      classesAttended: Number(formData.classesAttended),
-      totalClassesConducted: Number(formData.totalClassesConducted),
-    };
-// Removed the incorrect handleBack declaration
-
-
-    let marks = {};
-    if (type === 'assignment') {
-      marks.assignment = Number(formData.assignment);
-    } else if (type === 'lab') {
-      marks.lab = Number(formData.lab);
-    } else if (type === 'theory') {
-      const totalTheory =
-        Number(formData.cie1) + Number(formData.cie2) + Number(formData.cie3);
-      marks = {
-        cie1: Number(formData.cie1),
-        cie2: Number(formData.cie2),
-        cie3: Number(formData.cie3),
-        theory: totalTheory,
-      };
+    if (Number(classesAttended) > Number(totalClassesConducted)) {
+      setMessage('Classes attended cannot be more than total classes conducted.');
+      return;
     }
 
-    const payload = {
-      ...basePayload,
-      attendance,
-      marks,
+    const theoryScaled = calculateTheoryScaled(cie1, cie2, cie3);
+
+    const newSubject = {
+      subject: subject.trim(),
+      aatMarks: Number(aatMarks),
+      assignmentMarks: Number(assignmentMarks),
+      theoryMarks: theoryScaled,
+      cie1: Number(cie1),
+      cie2: Number(cie2),
+      cie3: Number(cie3),
+      labMarks: Number(labMarks),
+      classesAttended: Number(classesAttended),
+      totalClassesConducted: Number(totalClassesConducted),
     };
 
-    try {
-      const res = await fetch('http://localhost:5000/api/student', {
-        method: 'POST',
-        headers:  {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  },
+    const studentIndex = studentsData.findIndex(
+      (s) =>
+        s.studentId === studentId.trim() &&
+        s.semester === semester.trim() &&
+        s.section === section.trim()
+    );
 
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setSuccess(true);
-        setFormData({
-          studentId: '',
-          classesAttended: '',
-          totalClassesConducted: '',
-          assignment: '',
-          lab: '',
-          cie1: '',
-          cie2: '',
-          cie3: '',
-        });
+    if (editMode) {
+      const updatedStudents = [...studentsData];
+      const student = updatedStudents[editStudentIndex];
+      student.subjects[editSubjectIndex] = newSubject;
+      setStudentsData(updatedStudents);
+      setEditMode(false);
+      setEditStudentIndex(null);
+      setEditSubjectIndex(null);
+      setMessage('Subject updated successfully!');
+    } else {
+      if (studentIndex !== -1) {
+        const student = studentsData[studentIndex];
+        const duplicate = student.subjects.find(
+          (subj) => subj.subject.toLowerCase() === newSubject.subject.toLowerCase()
+        );
+        if (duplicate) {
+          setMessage(`Marks for subject "${subject}" already entered.`);
+          return;
+        }
+        const updatedStudent = { ...student };
+        updatedStudent.subjects.push(newSubject);
+        const newStudentsData = [...studentsData];
+        newStudentsData[studentIndex] = updatedStudent;
+        setStudentsData(newStudentsData);
       } else {
-        alert('Failed to submit. Try again.');
+        const newStudent = {
+          studentId: studentId.trim(),
+          semester: semester.trim(),
+          section: section.trim(),
+          subjects: [newSubject],
+        };
+        setStudentsData([...studentsData, newStudent]);
       }
-    } catch (err) {
-      console.error(err);
-      alert('Error submitting data.');
+      setMessage('Entry added successfully!');
     }
+
+    setFormData({
+      studentId: '',
+      semester: '',
+      section: '',
+      subject: '',
+      aatMarks: '',
+      assignmentMarks: '',
+      cie1: '',
+      cie2: '',
+      cie3: '',
+      labMarks: '',
+      classesAttended: '',
+      totalClassesConducted: '',
+    });
   };
 
+  const handleEdit = (studentIdx, subjectIdx) => {
+    const student = studentsData[studentIdx];
+    const subject = student.subjects[subjectIdx];
+
+    setFormData({
+      studentId: student.studentId,
+      semester: student.semester,
+      section: student.section,
+      subject: subject.subject,
+      aatMarks: subject.aatMarks,
+      assignmentMarks: subject.assignmentMarks,
+      cie1: subject.cie1,
+      cie2: subject.cie2,
+      cie3: subject.cie3,
+      labMarks: subject.labMarks,
+      classesAttended: subject.classesAttended,
+      totalClassesConducted: subject.totalClassesConducted,
+    });
+
+    setEditMode(true);
+    setEditStudentIndex(studentIdx);
+    setEditSubjectIndex(subjectIdx);
+    setShowTable(false);
+    setMessage('');
+  };
+
+  const handleDelete = (studentIdx, subjectIdx) => {
+    const updatedStudents = [...studentsData];
+    const student = updatedStudents[studentIdx];
+    student.subjects.splice(subjectIdx, 1);
+
+    if (student.subjects.length === 0) {
+      updatedStudents.splice(studentIdx, 1);
+    }
+
+    setStudentsData(updatedStudents);
+    setMessage('Subject entry deleted.');
+  };
+
+  const renderInputField = (key, value) => {
+  // Fields that are marks and should have "(out of 10)" in placeholder
+const marksFields = ['assignmentMarks', 'cie1', 'cie2', 'cie3', 'labMarks'];
+
+  if (key === 'semester') {
+    return (
+      <select name="semester" value={value} onChange={handleChange} style={inputStyle}>
+        <option value="">Select Semester</option>
+        {[2, 3, 4].map((sem) => (
+          <option key={sem} value={sem}>{sem}</option>
+        ))}
+      </select>
+    );
+  } else if (key === 'section') {
+    return (
+      <select name="section" value={value} onChange={handleChange} style={inputStyle}>
+        <option value="">Select Section</option>
+        {['A', 'B'].map((sec) => (
+          <option key={sec} value={sec}>{sec}</option>
+        ))}
+      </select>
+    );
+  } else if (key === 'subject') {
+    const options = subjectOptions[formData.semester] || [];
+    return (
+      <select name="subject" value={value} onChange={handleChange} style={inputStyle}>
+        <option value="">Select Subject</option>
+        {options.map((subj) => (
+          <option key={subj} value={subj}>{subj}</option>
+        ))}
+      </select>
+    );
+  } else {
+    // Format base placeholder text
+    let placeholderText = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+
+    if (key === 'aatMarks') {
+  placeholderText += ' (out of 20)';
+} else if (marksFields.includes(key)) {
+  placeholderText += ' (out of 10)';
+}
+
+
+    // Append (out of 10) for marks fields only
+    if (marksFields.includes(key)) {
+      placeholderText += ' (out of 10)';
+    }
+
+    return (
+      <input
+        key={key}
+        name={key}
+        type={marksFields.concat(['classesAttended', 'totalClassesConducted']).includes(key) ? 'number' : 'text'}
+        value={value}
+        onChange={handleChange}
+        placeholder={placeholderText}
+        style={inputStyle}
+        min={0}
+      />
+    );
+  }
+};
+
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 overflow-hidden relative">
-      <button
-        onClick={handleBack}
-        className="absolute top-6 right-6 text-white bg-purple-700 hover:bg-purple-900 px-4 py-2 rounded shadow-md transition"
-      >
-        ← Back
-      </button>
+    <div style={{ padding: 20, fontFamily: 'Arial, sans-serif' }}>
+      <h1 style={headingStyle}>Student Marks</h1>
+      <div style={containerStyle}>
+        {!showTable ? (
+          <>
+            
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
+              {Object.entries(formData).map(([key, value]) => (
+                <React.Fragment key={key}>{renderInputField(key, value)}</React.Fragment>
+              ))}
+              
+             {message && (
+  <div
+    style={{
+      gridColumn: 'span 4',
+      marginTop: 8,
+      marginBottom: 0,
+      textAlign: 'center',
+      fontSize: '18px',
+      color: message.toLowerCase().includes('success') ? 'green' : 'red',
+      width: '100%',
+    }}
+  >
+    {message}
+  </div>
+)}
 
-      <div className="w-[80vw] h-[80vh] bg-white border-4 border-black rounded-lg shadow-[0_0_30px_10px_rgba(128,0,128,0.5)] p-8 overflow-auto">
-        <h2 className="text-4xl font-dancing text-center mb-4">Enter {type} Marks</h2>
 
-        <div className="text-center text-lg font-semibold mb-6">
-          Semester: <span className="text-purple-700">{semester}</span> | Section:{' '}
-          <span className="text-purple-700">{section}</span> | Subject:{' '}
-          <span className="text-purple-700">{subject}</span>
-        </div>
-
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto grid grid-cols-1 gap-4">
-          {/* Student ID */}
-          <div className="flex justify-center">
-            <input
-              type="text"
-              name="studentId"
-              placeholder="Student ID"
-              value={formData.studentId}
-              onChange={handleChange}
-              className="w-2/3 border p-2 rounded"
-              required
+              <div style={{ gridColumn: 'span 4', textAlign: 'center', marginTop: 8 }}>
+    <button type="submit" style={buttonStyle}>
+      {editMode ? 'Update Entry' : 'Add Entry'}
+    </button>
+    <button
+      type="button"
+      onClick={() => {
+        setShowTable(true);
+        setMessage('');  // clear message when switching to table
+      }}
+      style={{ ...buttonStyle, marginLeft: 12 }}
+      disabled={studentsData.length === 0}
+    >
+      View Table
+    </button>
+  </div>
+</form>
+          </>
+        ) : (
+          <>
+            <StudentMarksTable
+              studentsData={studentsData}
+              calculateTotalMarks={calculateTotalMarks}
+              checkEligibility={checkEligibility}
+              handleEdit={handleEdit}
+              handleDelete={handleDelete}
             />
-          </div>
-
-          {/* Attendance */}
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="number"
-              name="classesAttended"
-              placeholder="Classes Attended"
-              value={formData.classesAttended}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
-            <input
-              type="number"
-              name="totalClassesConducted"
-              placeholder="Total Classes Conducted"
-              value={formData.totalClassesConducted}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
-          </div>
-
-          {/* Conditional fields */}
-          {type === 'assignment' && (
-            <input
-              type="number"
-              name="assignment"
-              placeholder="Assignment Marks (out of 10)"
-              value={formData.assignment}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
-          )}
-
-          {type === 'lab' && (
-            <input
-              type="number"
-              name="lab"
-              placeholder="Lab Marks (out of 10)"
-              value={formData.lab}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
-          )}
-
-          {type === 'theory' && (
-            <>
-              <input
-                type="number"
-                name="cie1"
-                placeholder="CIE 1 Marks (out of 10)"
-                value={formData.cie1}
-                onChange={handleChange}
-                className="w-full border p-2 rounded"
-                required
-              />
-              <input
-                type="number"
-                name="cie2"
-                placeholder="CIE 2 Marks (out of 10)"
-                value={formData.cie2}
-                onChange={handleChange}
-                className="w-full border p-2 rounded"
-                required
-              />
-              <input
-                type="number"
-                name="cie3"
-                placeholder="CIE 3 Marks (out of 10)"
-                value={formData.cie3}
-                onChange={handleChange}
-                className="w-full border p-2 rounded"
-                required
-              />
-            </>
-          )}
-
-          <div className="text-center">
-            {success && (
-              <p className="text-green-600 font-semibold mb-2">
-                ✅ {type} marks submitted successfully!
-              </p>
-            )}
+            <br />
             <button
-              type="submit"
-              className="bg-black text-white w-full py-2 rounded hover:bg-purple-900 transition"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
+  onClick={() => {
+    setShowTable(false);
+    setMessage('');  // clear message when going back
+  }}
+  style={{ ...buttonStyle, marginBottom: 12 }}
+>
+  Back to Input
+</button>
+          </>
+        )}
       </div>
     </div>
   );
+}
+
+function StudentMarksTable({ studentsData, calculateTotalMarks, checkEligibility, handleEdit, handleDelete }) {
+  return (
+    <div style={{ overflowY: 'scroll', maxHeight: '45vh', border: '2px solid #333', borderRadius: 5, padding: 16, width: '100%' }}>
+      <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '1200px', fontFamily: 'Arial, sans-serif' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
+            <th style={thStyle}>Student ID</th>
+            <th style={thStyle}>Semester</th>
+            <th style={thStyle}>Section</th>
+            <th style={thStyle}>Subjects</th>
+          </tr>
+        </thead>
+        <tbody>
+          {studentsData.map((student, studentIdx) => (
+            <tr key={`${student.studentId}-${student.semester}-${student.section}`}>
+              <td style={tdStyle}>{student.studentId}</td>
+              <td style={tdStyle}>{student.semester}</td>
+              <td style={tdStyle}>{student.section}</td>
+              <td style={{ ...tdStyle, textAlign: 'left' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                  {student.subjects.map((subj, subjectIdx) => {
+                    const totalMarks = calculateTotalMarks(subj);
+                    const attendancePercent = subj.totalClassesConducted > 0
+                      ? ((subj.classesAttended / subj.totalClassesConducted) * 100).toFixed(1)
+                      : '0';
+                    const eligible = checkEligibility(subj);
+
+                    return (
+                      <div key={subjectIdx} style={{ flex: '1 0 calc(33.33% - 12px)', minWidth: '250px', marginBottom: 8, padding: 8, border: '1px solid #ccc', borderRadius: 6, backgroundColor: eligible ? '#e0f7e9' : '#fce4e4', position: 'relative' }}>
+                        <strong>{subj.subject}</strong>
+                        <br />
+                        AAT: {subj.aatMarks}, Assignment: {subj.assignmentMarks}
+                        <br />
+                        CIE1: {subj.cie1}, CIE2: {subj.cie2}, CIE3: {subj.cie3}, Theory(Scaled): {subj.theoryMarks}
+                        <br />
+                        Lab: {subj.labMarks}
+                        <br />
+                        <strong>Total:</strong> {totalMarks}, <strong>Attendance %:</strong> {attendancePercent}%
+                        <br />
+                        <strong style={{ color: eligible ? 'green' : 'red' }}>{eligible ? 'Eligible' : 'Not Eligible'}</strong>
+                        <div style={{ marginTop: 6 }}>
+                          <button onClick={() => handleEdit(studentIdx, subjectIdx)} style={{ ...smallButtonStyle, marginRight: 8 }}>Edit</button>
+                          <button onClick={() => handleDelete(studentIdx, subjectIdx)} style={smallButtonStyle}>Delete</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+const headingStyle = {
+  fontFamily: "'Dancing Script', cursive",
+  fontSize: '80px',
+  textAlign: 'center',
+  marginBottom: '70px',
+  marginTop: '50px'
 };
 
-export default StudentMarksForm;
+const containerStyle = {
+  border: '2px solid black',
+  boxShadow: '0 0 10px red',
+  padding: '20px',
+  borderRadius: '10px',
+  backgroundColor: '#fff',
+  fontSize: '18px',
+};
+
+const inputStyle = {
+  padding: '15px 20px',
+  fontSize: 20,
+  borderRadius: 5,
+  border: '1px solid #ccc',
+  boxSizing: 'border-box',
+};
+
+const buttonStyle = {
+  padding: '15px 20px',
+  fontSize: 20,
+  borderRadius: 5,
+  border: 'none',
+  cursor: 'pointer',
+  backgroundColor: '#007bff',
+  color: 'white',
+};
+
+const smallButtonStyle = {
+  padding: '5px 10px',
+  fontSize: 14,
+  borderRadius: 5,
+  border: 'none',
+  cursor: 'pointer',
+  backgroundColor: '#28a745',
+  color: 'white',
+};
+
+const thStyle = {
+  padding: '10px',
+  border: '1px solid #ddd',
+  textAlign: 'center',
+  fontWeight: 'bold',
+};
+
+const tdStyle = {
+  padding: '10px',
+  border: '1px solid #ddd',
+  textAlign: 'center',
+  verticalAlign: 'top',
+}; 

@@ -10,11 +10,13 @@ const PostLoginHome = () => {
   const [subject, setSubject] = useState('');
   const navigate = useNavigate();
 
-  const handleCardClick = (type) => {
+  const handleNextClick = () => {
     if (semester && section && subject) {
-      navigate(`/marks-form/${type}?semester=${semester}&section=${section}&subject=${encodeURIComponent(subject)}`);
+      navigate(
+        `/marks-form/all?semester=${semester}&section=${section}&subject=${encodeURIComponent(subject)}`
+      );
     } else {
-      toast.warn('Please select semester, section, and enter subject name.', {
+      toast.warn('Please select semester, section, and subject.', {
         position: 'top-center',
         autoClose: 2500,
       });
@@ -40,7 +42,7 @@ const PostLoginHome = () => {
             Enter the semester, section, and subject to proceed to the marks submission page.
           </p>
 
-          {/* Dropdowns & Input */}
+          {/* Dropdowns */}
           <div className="mb-4">
             <label className="block mb-2 font-semibold">Select Semester</label>
             <select
@@ -69,60 +71,36 @@ const PostLoginHome = () => {
           </div>
 
           <div className="mb-10">
-            <label className="block mb-2 font-semibold">Enter Subject Name</label>
-            <input
-              type="text"
+            <label className="block mb-2 font-semibold">Select Subject</label>
+            <select
               className="w-full border border-gray-300 p-2 rounded"
-              placeholder="e.g. Mathematics"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-            />
+            >
+              <option value="">-- Choose Subject --</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Physics">Physics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Electronics">Electronics</option>
+              <option value="English">English</option>
+              {/* Add more subjects as needed */}
+            </select>
           </div>
 
-          {/* Functional Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 max-w-6xl mx-auto">
-            <Card 
-              title="Assignment" 
-              description="Average of all submitted assignment scores contributing to internal marks." 
-              onClick={() => handleCardClick('assignment')} 
-            />
-            <Card 
-              title="Lab" 
-              description="Includes practical lab work and experiments marked throughout the semester." 
-              onClick={() => handleCardClick('lab')} 
-            />
-            <Card 
-              title="Theory" 
-              description="Continuous internal assessments like quizzes, midterms, and tests." 
-              onClick={() => handleCardClick('theory')} 
-            />
-          </div>
-
-          {/* New Row with One Centered Card */}
-          <div className="mt-14 flex justify-center">
-            <div className="w-full max-w-sm">
-              <Card 
-                title="📊 View Final Eligibility Table"
-                description="See all submitted marks and check eligibility status for each student."
-                onClick={() => navigate("/table")}
-              />
-            </div>
+          {/* Next Button */}
+          <div className="mt-10">
+            <button
+              onClick={handleNextClick}
+              className="px-8 py-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-900 transition"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-// Reusable Card Component
-const Card = ({ title, description, onClick }) => (
-  <div 
-    onClick={onClick}
-    className="cursor-pointer bg-white rounded-2xl p-6 border-2 border-gray-300 shadow-md hover:shadow-xl transition duration-300 text-center"
-  >
-    <h2 className="font-dancing text-3xl mb-3">{title}</h2>
-    <p className="text-base text-gray-700">{description}</p>
-  </div>
-);
 
 export default PostLoginHome;
