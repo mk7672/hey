@@ -24,64 +24,15 @@ const StudentMarksForm = () => {
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  const handleViewAll = () => {
-    navigate('/table');
-  };
-  const handleBack = () => {
-    navigate('/');
-  };
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSuccess(false);
-
-    if (!semester || !section || !subject) {
-      toast.warning('Please select semester, section, and subject.');
-      return;
-    }
-
-    const attendance = {
-      classesAttended: Number(formData.classesAttended),
-      totalClassesConducted: Number(formData.totalClassesConducted),
-    };
-
-    const marks = {
-      assignment: Number(formData.assignment),
-      lab: Number(formData.lab),
-      aat: Number(formData.aat),
-      cie1: Number(formData.cie1),
-      cie2: Number(formData.cie2),
-      cie3: Number(formData.cie3),
-      theory:
-        Number(formData.cie1) +
-        Number(formData.cie2) +
-        Number(formData.cie3),
-    };
-
-    const payload = {
-      studentId: formData.studentId,
-      semester,
-      section,
-      subject,
-      attendance,
-      marks,
-    };
-
-    try {
-      const res = await fetch('http://localhost:5000/api/student', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
+  const handleNextClick = () => {
+    if (semester && section && subject) {
+      navigate(
+        `/marks-form/all?semester=${semester}&section=${section}&subject=${encodeURIComponent(subject)}`
+      );
+    } else {
+      toast.warn('Please select semester, section, and subject.', {
+        position: 'top-center',
+        autoClose: 2500,
       });
 
       if (res.ok) {
@@ -127,11 +78,20 @@ const StudentMarksForm = () => {
             <option value="4">4</option>
           </select>
 
-          <select value={section} onChange={(e) => setSection(e.target.value)} required className="w-full border p-2 rounded">
-            <option value="">Select Section</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-          </select>
+          {/* Dropdowns */}
+          <div className="mb-4">
+            <label className="block mb-2 font-semibold">Select Semester</label>
+            <select
+              className="w-full border border-gray-300 p-2 rounded"
+              value={semester}
+              onChange={(e) => setSemester(e.target.value)}
+            >
+              <option value="">-- Choose Semester --</option>
+              <option value="2">Semester 2</option>
+              <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
+            </select>
+          </div>
 
           <select value={subject} onChange={(e) => setSubject(e.target.value)} required className="w-full border p-2 rounded">
             <option value="">Select Subject</option>
@@ -141,104 +101,31 @@ const StudentMarksForm = () => {
             <option value="Computer">Computer</option>
           </select>
 
-          <input
-            type="text"
-            name="studentId"
-            placeholder="Student ID"
-            value={formData.studentId}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="number"
-              name="classesAttended"
-              placeholder="Classes Attended"
-              value={formData.classesAttended}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
-            <input
-              type="number"
-              name="totalClassesConducted"
-              placeholder="Total Classes Conducted"
-              value={formData.totalClassesConducted}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
+          <div className="mb-10">
+            <label className="block mb-2 font-semibold">Select Subject</label>
+            <select
+              className="w-full border border-gray-300 p-2 rounded"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            >
+              <option value="">-- Choose Subject --</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Physics">Physics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Electronics">Electronics</option>
+              <option value="English">English</option>
+              {/* Add more subjects as needed */}
+            </select>
           </div>
 
-          <input
-            type="number"
-            name="assignment"
-            placeholder="Assignment Marks"
-            value={formData.assignment}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <input
-            type="number"
-            name="lab"
-            placeholder="Lab Marks"
-            value={formData.lab}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <input
-            type="number"
-            name="aat"
-            placeholder="AAT Marks"
-            value={formData.aat}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <input
-            type="number"
-            name="cie1"
-            placeholder="CIE 1 Marks"
-            value={formData.cie1}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <input
-            type="number"
-            name="cie2"
-            placeholder="CIE 2 Marks"
-            value={formData.cie2}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <input
-            type="number"
-            name="cie3"
-            placeholder="CIE 3 Marks"
-            value={formData.cie3}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-
-          <div className="text-center">
+          {/* Next Button */}
+          <div className="mt-10">
             <button
-              type="submit"
-              className="bg-black text-white w-full py-2 rounded hover:bg-purple-900 transition"
+              onClick={handleNextClick}
+              className="px-8 py-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-900 transition"
             >
-              Submit
-            </button>
-            <button
-              type="button"
-              onClick={handleViewAll}
-              className="mt-2 text-white hover:underline bg-black w-full py-2 rounded hover:bg-purple-900 transition">
-                View All Students
+              Next
             </button>
           </div>
         </form>
@@ -249,4 +136,4 @@ const StudentMarksForm = () => {
   );
 };
 
-export default StudentMarksForm;
+export default PostLoginHome;

@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setError("");
 
@@ -18,36 +18,20 @@ const Login = () => {
       return;
     }
 
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+    // Simulate successful login
+    localStorage.setItem("token", "mockToken123");
 
-      const data = await response.json();
+    toast.success("Login successful!", {
+      position: "top-center",
+      autoClose: 2000,
+    });
 
-      if (!response.ok) {
-        setError(data.message || "Login failed");
-      } else {
-        localStorage.setItem("token", data.token);
-
-        toast.success("Login successful!", {
-          position: "top-center",
-          autoClose: 2000,
-        });
-
-        setTimeout(() => navigate("/pl"), 1000); // wait for toast to finish
-      }
-    } catch (err) {
-      setError("Server error. Please try again later.");
-      console.error(err);
-    }
+    setTimeout(() => navigate("/pl"), 1000);
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto px-4">
-      <h2 className="text-7xl font-dancing mb-10 text-center">Login</h2>
+    <div className="w-full max-w-lg mx-auto px-4">
+      <h2 className="text-8xl font-dancing mt-20 mb-20 text-center">Login</h2>
 
       <div className="border-4 border-black p-6 rounded-lg shadow-lg shadow-red-500">
         <form onSubmit={handleLogin} className="space-y-6">
@@ -68,13 +52,13 @@ const Login = () => {
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <button type="submit" className="w-full bg-black text-white py-2 rounded">
+          <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition text-lg">
             Login
           </button>
 
           <Link
             to="/forgot-password"
-            className="block text-center text-sm text-blue-600 hover:underline"
+            className="block text-center text-lg text-blue-600 hover:underline"
           >
             Forgot Password?
           </Link>

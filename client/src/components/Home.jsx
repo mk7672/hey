@@ -1,10 +1,10 @@
 const Home = () => {
   return (
-    <div className="min-h-screen flex flex-col  items-center px-4 bg-gray-200">
-      <h1 className="text-6xl md:text-7xl font-dancing mt-5 text-center">
+    <div className="flex flex-col items-center px-4 bg-white border-4 border-black shadow-xl shadow-black-700 mt-20 py-10 w-3/4 h-[70vh] mx-auto rounded-xl">
+      <h1 className="text-3xl md:text-8xl font-dancing text-center mt-20">
         SEE Eligibility Calculator
       </h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-20 w-full px-6">
         <Card 
           title="Assignment" 
           description="Average of all submitted assignment scores contributing to internal marks." 
@@ -23,9 +23,9 @@ const Home = () => {
 };
 
 const Card = ({ title, description }) => (
-  <div className="bg-white rounded-2xl p-6 border-2 border-gray-300 shadow-md hover:shadow-xl transition duration-300 text-center">
-    <h2 className="font-dancing text-3xl mb-3">{title}</h2>
-    <p className="text-base text-gray-700">{description}</p>
+  <div className="bg-white rounded-2xl p-6 border-4 border-black shadow-2xl shadow-red-700 transition duration-300 text-center w-64 h-64 flex flex-col justify-center mx-auto">
+    <h2 className="font-dancing text-5xl mb-3">{title}</h2>
+    <p className="text-xl text-gray-700">{description}</p>
   </div>
 );
 

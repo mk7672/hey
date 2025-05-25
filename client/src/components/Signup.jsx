@@ -10,7 +10,7 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSignup = async (e) => {
+  const handleSignup = (e) => {
     e.preventDefault();
     setError("");
 
@@ -24,36 +24,27 @@ const Signup = () => {
       return;
     }
 
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+    toast.success("Signup successful! Redirecting to marks form...", {
+      position: "top-center",
+      autoClose: 2000,
+    });
 
-      const data = await response.json();
+    // Clear the form fields
+    setUsername("");
+    setPassword("");
+    setConfirmPassword("");
+    setError("");
 
-      if (!response.ok) {
-        setError(data.message || "Signup failed");
-      } else {
-        toast.success("Signup successful! Redirecting to login...", {
-          position: "top-center",
-          autoClose: 2000,
-        });
-
-        setTimeout(() => navigate("/login"), 1000);
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Server error. Please try again later.");
-    }
+    setTimeout(() => {
+      navigate("/marksform");
+    }, 1000);
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto px-4">
-      <h2 className="text-7xl font-dancing mb-10 text-center">Sign Up</h2>
+    <div className="w-full max-w-lg mx-auto px-4">
+      <h2 className="text-8xl font-dancing mt-20 mb-20 text-center">Sign Up</h2>
 
-      <div className="border-4 border-black p-6 rounded-lg shadow-lg shadow-purple-500">
+      <div className="border-4 border-black p-6 rounded-lg shadow-lg shadow-red-500">
         <form onSubmit={handleSignup} className="space-y-6">
           <input
             type="text"
@@ -79,13 +70,16 @@ const Signup = () => {
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <button type="submit" className="w-full bg-black text-white py-2 rounded">
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition text-lg"
+          >
             Sign Up
           </button>
 
           <Link
             to="/login"
-            className="block text-center text-sm text-blue-600 hover:underline"
+            className="block text-center text-lg text-blue-600 hover:underline"
           >
             Already have an account? Login
           </Link>
