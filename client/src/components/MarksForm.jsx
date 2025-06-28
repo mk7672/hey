@@ -77,18 +77,9 @@ export default function StudentMarksForm() {
     }
 
     const {
-      studentId,
-      semester,
-      section,
-      subject,
-      aatMarks,
-      assignmentMarks,
-      cie1,
-      cie2,
-      cie3,
-      labMarks,
-      classesAttended,
-      totalClassesConducted,
+      studentId, semester, section, subject,
+      aatMarks, assignmentMarks, cie1, cie2, cie3,
+      labMarks, classesAttended, totalClassesConducted
     } = formData;
 
   if (Number(classesAttended) > Number(totalClassesConducted)) {
@@ -117,6 +108,8 @@ export default function StudentMarksForm() {
         s.semester === semester.trim() &&
         s.section === section.trim()
     );
+
+    let updatedData = [...studentsData];
 
     if (editMode) {
       updatedData[editStudentIndex].subjects[editSubjectIndex] = newSubject;
