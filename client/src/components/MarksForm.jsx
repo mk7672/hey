@@ -70,109 +70,153 @@ export default function StudentMarksForm() {
 
 
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const requiredFields = Object.keys(formData);
-    for (const field of requiredFields) {
-      if (!formData[field]) {
-        setMessage(`Please fill the ${field} field.`);
-        return;
-      }
-    }
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const {
-      studentId,
-      semester,
-      section,
-      subject,
-      aatMarks,
-      assignmentMarks,
-      cie1,
-      cie2,
-      cie3,
-      labMarks,
-      classesAttended,
-      totalClassesConducted,
-    } = formData;
-
-    if (Number(classesAttended) > Number(totalClassesConducted)) {
-      setMessage('Classes attended cannot be more than total classes conducted.');
+  // Validation
+  for (const key in formData) {
+    if (!formData[key]) {
+      setMessage(`Please fill the ${key} field.`);
       return;
     }
+  }
 
-    const theoryScaled = calculateTheoryScaled(cie1, cie2, cie3);
+  const {
+    studentId,
+    semester,
+    section,
+    subject,
+    aatMarks,
+    assignmentMarks,
+    cie1,
+    cie2,
+    cie3,
+    labMarks,
+    classesAttended,
+    totalClassesConducted,
+  } = formData;
 
-    const newSubject = {
-      subject: subject.trim(),
-      aatMarks: Number(aatMarks),
-      assignmentMarks: Number(assignmentMarks),
-      theoryMarks: theoryScaled,
-      cie1: Number(cie1),
-      cie2: Number(cie2),
-      cie3: Number(cie3),
-      labMarks: Number(labMarks),
-      classesAttended: Number(classesAttended),
-      totalClassesConducted: Number(totalClassesConducted),
-    };
+  if (Number(classesAttended) > Number(totalClassesConducted)) {
+    setMessage('Classes attended cannot be more than total classes conducted.');
+    return;
+  }
 
-    const studentIndex = studentsData.findIndex(
-      (s) =>
-        s.studentId === studentId.trim() &&
-        s.semester === semester.trim() &&
-        s.section === section.trim()
-    );
+  const theoryScaled = calculateTheoryScaled(cie1, cie2, cie3);
 
-    if (editMode) {
-      const updatedStudents = [...studentsData];
-      const student = updatedStudents[editStudentIndex];
-      student.subjects[editSubjectIndex] = newSubject;
-      setStudentsData(updatedStudents);
-      setEditMode(false);
-      setEditStudentIndex(null);
-      setEditSubjectIndex(null);
-      setMessage('Subject updated successfully!');
-    } else {
-      if (studentIndex !== -1) {
-        const student = studentsData[studentIndex];
-        const duplicate = student.subjects.find(
-          (subj) => subj.subject.toLowerCase() === newSubject.subject.toLowerCase()
-        );
-        if (duplicate) {
-          setMessage(`Marks for subject "${subject}" already entered.`);
-          return;
-        }
-        const updatedStudent = { ...student };
-        updatedStudent.subjects.push(newSubject);
-        const newStudentsData = [...studentsData];
-        newStudentsData[studentIndex] = updatedStudent;
-        setStudentsData(newStudentsData);
-      } else {
-        const newStudent = {
-          studentId: studentId.trim(),
-          semester: semester.trim(),
-          section: section.trim(),
-          subjects: [newSubject],
-        };
-        setStudentsData([...studentsData, newStudent]);
-      }
-      setMessage('Entry added successfully!');
-    }
-
-    setFormData({
-      studentId: '',
-      semester: '',
-      section: '',
-      subject: '',
-      aatMarks: '',
-      assignmentMarks: '',
-      cie1: '',
-      cie2: '',
-      cie3: '',
-      labMarks: '',
-      classesAttended: '',
-      totalClassesConducted: '',
-    });
+  const newSubject = {
+    subject: subject.trim(),
+    aatMarks: Number(aatMarks),
+    assignmentMarks: Number(assignmentMarks),
+    cie1: Number(cie1),
+    cie2: Number(cie2),
+    cie3: Number(cie3),
+    theoryMarks: theoryScaled,
+    labMarks: Number(labMarks),
+    classesAttended: Number(classesAttended),
+    totalClassesConducted: Number(totalClassesConducted),
   };
+
+  // Find student index in current local state
+  const studentIndex = studentsData.findIndex(
+    (s) =>
+      s.studentId === studentId.trim() &&
+      s.semester === semester.trim() &&
+      s.section === section.trim()
+  );
+
+  let studentToSend; // Will hold updated student to send to backend
+
+  if (editMode) {
+    // Update subject locally
+    const updatedStudents = [...studentsData];
+    updatedStudents[editStudentIndex].subjects[editSubjectIndex] = newSubject;
+    setStudentsData(updatedStudents);
+
+    // Send updated full student to backend
+    studentToSend = updatedStudents[editStudentIndex];
+
+    setEditMode(false);
+    setEditStudentIndex(null);
+    setEditSubjectIndex(null);
+    setMessage('Subject updated locally!');
+  } else {
+    if (studentIndex !== -1) {
+      // Student exists locally, add new subject if not duplicate
+      const student = studentsData[studentIndex];
+      const duplicate = student.subjects.find(
+        (subj) => subj.subject.toLowerCase() === newSubject.subject.toLowerCase()
+      );
+      if (duplicate) {
+        setMessage(`Marks for subject "${subject}" already entered.`);
+        return;
+      }
+
+      const updatedStudent = { ...student };
+      updatedStudent.subjects = [...updatedStudent.subjects, newSubject];
+
+      const newStudentsData = [...studentsData];
+      newStudentsData[studentIndex] = updatedStudent;
+      setStudentsData(newStudentsData);
+
+      // Send updated full student to backend
+      studentToSend = updatedStudent;
+    } else {
+      // New student - create and add to local state
+      const newStudent = {
+        studentId: studentId.trim(),
+        semester: semester.trim(),
+        section: section.trim(),
+        subjects: [newSubject],
+      };
+      setStudentsData([...studentsData, newStudent]);
+
+      // Send new student to backend
+      studentToSend = newStudent;
+    }
+  }
+
+  // Send to MongoDB backend
+  try {
+    const response = await fetch('http://localhost:5000/api/student', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(studentToSend), // <-- send the full updated student object
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      console.log(result.message);
+      setMessage('Data saved to database!');
+    } else {
+      console.error(result);
+      setMessage(result.error || result.message || 'Failed to save data to database.');
+      console.error('Backend error response:', result);  // log this
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+    setMessage('Error connecting to backend: ' + err.message);
+  }
+
+  // Reset form fields
+  setFormData({
+    studentId: '',
+    semester: '',
+    section: '',
+    subject: '',
+    aatMarks: '',
+    assignmentMarks: '',
+    cie1: '',
+    cie2: '',
+    cie3: '',
+    labMarks: '',
+    classesAttended: '',
+    totalClassesConducted: '',
+  });
+};
+
+
 
   const handleEdit = (studentIdx, subjectIdx) => {
     const student = studentsData[studentIdx];
@@ -200,18 +244,48 @@ export default function StudentMarksForm() {
     setMessage('');
   };
 
-  const handleDelete = (studentIdx, subjectIdx) => {
-    const updatedStudents = [...studentsData];
-    const student = updatedStudents[studentIdx];
-    student.subjects.splice(subjectIdx, 1);
+  const handleDelete = async (studentIdx, subjectIdx) => {
+  const updatedStudents = [...studentsData];
+  const student = updatedStudents[studentIdx];
 
-    if (student.subjects.length === 0) {
-      updatedStudents.splice(studentIdx, 1);
+  student.subjects.splice(subjectIdx, 1); // remove the subject
+
+  if (student.subjects.length === 0) {
+    updatedStudents.splice(studentIdx, 1); // remove the student if no subjects left
+  }
+
+  setStudentsData(updatedStudents);
+  setMessage('Subject entry deleted.');
+
+  // ✅ Check if no subjects left, then delete the student from DB
+  if (student.subjects.length === 0) {
+    try {
+      const response = await fetch(`http://localhost:5000/api/student/${student.studentId}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+      console.log('Student deleted:', result.message);
+    } catch (err) {
+      console.error('Failed to sync student deletion with backend:', err);
     }
+  } else {
+    // If there are still subjects, just update the student in DB
+    try {
+      const response = await fetch('http://localhost:5000/api/student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(student),
+      });
 
-    setStudentsData(updatedStudents);
-    setMessage('Subject entry deleted.');
-  };
+      const result = await response.json();
+      console.log('Student updated after subject deletion:', result.message);
+    } catch (err) {
+      console.error('Failed to sync student update with backend:', err);
+    }
+  }
+};
+
 
   const renderInputField = (key, value) => {
   // Fields that are marks and should have "(out of 10)" in placeholder
@@ -279,7 +353,7 @@ const marksFields = ['assignmentMarks', 'cie1', 'cie2', 'cie3', 'labMarks'];
 
   return (
     <div style={{ padding: 20, fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={headingStyle}>Student Marks</h1>
+      <h1 style={headingStyle} marginTop="20px">Student Marks</h1>
       <div style={containerStyle}>
         {!showTable ? (
           <>

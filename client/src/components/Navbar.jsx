@@ -18,13 +18,12 @@ const Navbar = () => {
   };
 
   const handleLogoClick = () => {
-  navigate("/"); // always home page
-};
+    navigate("/"); // always home page
+  };
 
-const handleTitleClick = () => {
-  navigate("/"); // always home page
-};
-
+  const handleTitleClick = () => {
+    navigate("/"); // always home page
+  };
 
   // List of paths where you want to hide the tabs
   const hideLinksOnPaths = ["/pl"];
@@ -54,20 +53,12 @@ const handleTitleClick = () => {
         {/* Only hide the Contact Us and Sign Up tabs, keep logo & title active */}
         {!hideTabs && (
           <div className="flex items-center gap-20">
-            
-
-            {!isLoggedIn ? (
-              <Link to="/signup" className="hover:underline font-semibold text-xl">
-                Sign Up
-              </Link>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className="hover:underline font-semibold text-xl"
-              >
-                Login
-              </button>
-            )}
+            <button
+              onClick={handleLogout}
+              className="hover:underline font-semibold text-xl"
+            >
+              Login
+            </button>
           </div>
         )}
       </div>

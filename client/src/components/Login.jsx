@@ -3,6 +3,17 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Hardcoded valid credentials (replace with your actual values)
+const VALID_USERNAME = "aaa";
+const VALID_PASSWORD = "11111";
+
+// Mock function to generate a JWT token string
+const generateMockJWT = (username) => {
+  // Normally JWT comes from your backend after authentication.
+  // Here we'll just encode username with a dummy token for demo
+  return btoa(JSON.stringify({ username, exp: Date.now() + 3600 * 1000 })); // base64 string
+};
+
 const Login = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -18,15 +29,21 @@ const Login = () => {
       return;
     }
 
-    // Simulate successful login
-    localStorage.setItem("token", "mockToken123");
+    // Check credentials against the single valid user
+    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+      // Generate and store JWT token in localStorage
+      const token = generateMockJWT(username);
+      localStorage.setItem("token", token);
 
-    toast.success("Login successful!", {
-      position: "top-center",
-      autoClose: 2000,
-    });
+      toast.success("Login successful!", {
+        position: "top-center",
+        autoClose: 2000,
+      });
 
-    setTimeout(() => navigate("/pl"), 1000);
+      setTimeout(() => navigate("/pl"), 1000);
+    } else {
+      setError("Invalid credentials.");
+    }
   };
 
   return (
@@ -52,16 +69,14 @@ const Login = () => {
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition text-lg">
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition text-lg"
+          >
             Login
           </button>
 
-          <Link
-            to="/forgot-password"
-            className="block text-center text-lg text-blue-600 hover:underline"
-          >
-            Forgot Password?
-          </Link>
+        
         </form>
       </div>
     </div>

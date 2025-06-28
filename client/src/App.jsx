@@ -3,7 +3,6 @@ import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Contact from "./components/Contact";
 import Login from "./components/Login";
-import ForgotPassword from "./components/ForgotPassword";
 import PostLoginHome from "./components/Postloginhome";
 import MarksForm from "./components/MarksForm";
 import StudentMarksTable from "./components/Stable";
@@ -76,14 +75,7 @@ const App = () => {
             </AppLayout>
           }
         />
-        <Route
-          path="/forgot-password"
-          element={
-            <AppLayout>
-              <ForgotPassword />
-            </AppLayout>
-          }
-        />
+        
         <Route
           path="/dashboard"
           element={<PostLoginHome />} // No Navbar

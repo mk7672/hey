@@ -1,7 +1,7 @@
 const Home = () => {
   return (
-    <div className="flex flex-col items-center px-4 bg-white border-4 border-black shadow-xl shadow-black-700 mt-20 py-10 w-3/4 h-[70vh] mx-auto rounded-xl">
-      <h1 className="text-3xl md:text-8xl font-dancing text-center mt-20">
+    <div className="flex flex-col items-center px-4 bg-white border-4 border-black shadow-xl shadow-black-700 mt-10 py-10 w-3/4 h-[70vh] mx-auto rounded-xl">
+      <h1 className="text-3xl md:text-8xl font-dancing text-center mt-5">
         SEE Eligibility Calculator
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-20 w-full px-6">
